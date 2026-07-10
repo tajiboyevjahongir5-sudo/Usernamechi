@@ -1,14 +1,58 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.filters import CommandStart
 import aiosqlite
+import random
+import string
 from config import DB_PATH, USERNAME_PRICE
 
 router = Router()
+
+# Yangi qo'shilgan tugmalar
+keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Qisqa noyob so'z username")],
+        [KeyboardButton(text="Turli ko'rinishdagi username")]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder="Tanlang..."
+)
+
+def generate_short_username():
+    length = random.randint(3, 5)
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for _ in range(length))
+
+def generate_various_username():
+    words = ['biznes', 'savdo', 'uzb', 'pro', 'shop', 'admin', 'bot', 'tech', 'dev']
+    formats = [
+        f"{random.choice(words)}_{random.randint(10, 99)}",
+        f"{random.choice(words)}{random.choice(words)}",
+        f"{random.choice(words)}_{random.choice(string.ascii_lowercase)}{random.randint(1, 9)}",
+        f"the_{random.choice(words)}",
+        f"{''.join(random.choices(string.ascii_lowercase, k=4))}_{random.choice(words)}"
+    ]
+    return random.choice(formats)
 
 @router.message(CommandStart())
 async def start_cmd(message: Message):
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("INSERT OR IGNORE INTO users (telegram_id) VALUES (?)", (message.from_user.id,))
         await db.commit()
-    await message.answer("Xush kelibsiz! Bu bot orqali avtomatik qisqa va ma'noli usernamelarni sotib olishingiz mumkin.")
+    # O'zgartirilgan joyi: reply_markup=keyboard qo'shildi
+    await message.answer(
+        "Xush kelibsiz! Bu bot orqali avtomatik qisqa va ma'noli usernamelarni sotib olishingiz mumkin.\n\nYoki quyidagi tugmalar yordamida yangi usernamelar yaratishingiz mumkin:", 
+        reply_markup=keyboard
+    )
+
+@router.message(F.text == "Qisqa noyob so'z username")
+async def short_username_handler(message: Message):
+    usernames = [f"@{generate_short_username()}" for _ in range(5)]
+    response = "Mana sizga qisqa noyob usernamelar:\n\n" + "\n".join(usernames)
+    await message.answer(response)
+
+@router.message(F.text == "Turli ko'rinishdagi username")
+async def various_username_handler(message: Message):
+    usernames = [f"@{generate_various_username()}" for _ in range(5)]
+    response = "Mana sizga turli ko'rinishdagi usernamelar:\n\n" + "\n".join(usernames)
+    await message.answer(response)

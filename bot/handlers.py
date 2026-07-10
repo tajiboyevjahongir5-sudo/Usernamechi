@@ -37,7 +37,7 @@ def generate_various_username():
 @router.message(CommandStart())
 async def start_cmd(message: Message):
     async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("INSERT OR IGNORE INTO users (telegram_id) VALUES (?)", (message.from_user.id,))
+        await db.execute("INSERT OR IGNORE INTO users (telegram_id, balance) VALUES (?, ?)", (message.from_user.id, USERNAME_PRICE))
         await db.commit()
     # O'zgartirilgan joyi: reply_markup=keyboard qo'shildi
     await message.answer(

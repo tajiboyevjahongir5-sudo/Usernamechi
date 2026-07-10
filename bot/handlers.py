@@ -18,21 +18,12 @@ keyboard = ReplyKeyboardMarkup(
     input_field_placeholder="Tanlang..."
 )
 
+from bot.words import generate_smart_username
+
 def generate_short_username():
     length = random.randint(3, 5)
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(length))
-
-def generate_various_username():
-    words = ['biznes', 'savdo', 'uzb', 'pro', 'shop', 'admin', 'bot', 'tech', 'dev']
-    formats = [
-        f"{random.choice(words)}_{random.randint(10, 99)}",
-        f"{random.choice(words)}{random.choice(words)}",
-        f"{random.choice(words)}_{random.choice(string.ascii_lowercase)}{random.randint(1, 9)}",
-        f"the_{random.choice(words)}",
-        f"{''.join(random.choices(string.ascii_lowercase, k=4))}_{random.choice(words)}"
-    ]
-    return random.choice(formats)
 
 @router.message(CommandStart())
 async def start_cmd(message: Message):
@@ -53,6 +44,6 @@ async def short_username_handler(message: Message):
 
 @router.message(F.text == "Turli ko'rinishdagi username")
 async def various_username_handler(message: Message):
-    usernames = [f"@{generate_various_username()}" for _ in range(5)]
+    usernames = [f"@{generate_smart_username()}" for _ in range(5)]
     response = "Mana sizga turli ko'rinishdagi usernamelar:\n\n" + "\n".join(usernames)
     await message.answer(response)

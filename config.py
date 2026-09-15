@@ -11,3 +11,7 @@ API_HASH = os.getenv("API_HASH", "")
 DB_PATH = "database/saas.db"
 
 USERNAME_PRICE = 5000  # 1 ta username narxi (so'm)
+
+# CodeCraft API sozlamalari. Kalitni GitHub kodiga yozmang.
+CODECRAFT_API_KEY = os.getenv("CODECRAFT_API_KEY", "")
+CODECRAFT_MODEL = os.getenv("CODECRAFT_MODEL", "claude-opus-4.8")
